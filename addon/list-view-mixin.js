@@ -114,7 +114,7 @@ export default Ember.Mixin.create({
     this._super();
     this._cachedHeights = [0];
     this.on('didInsertElement', this._syncListContainerWidth);
-    this.columnCountDidChange();
+    //this.columnCountDidChange();
     this._syncChildViews();
     this._addContentArrayObserver();
   },
@@ -288,12 +288,29 @@ export default Ember.Mixin.create({
                               'rowHeight',
                               'columnCount',
                               'bottomPadding', function() {
-    if (typeof this.heightForIndex === 'function') {
-      return this._totalHeightWithHeightForIndex();
-    } else {
-      return this._totalHeightWithStaticRowHeight();
-   }
+    // if (typeof this.heightForIndex === 'function') {
+    //   return this._totalHeightWithHeightForIndex();
+    // } else {
+    //   return this._totalHeightWithStaticRowHeight();
+    // }
+    var contentLength = get(this, 'content.length');
+    var optionGroupLength = get(this, 'optionGroupArray.length');
+    var rowHeight = get(this, 'rowHeight');
+    var optionGroupRowHeight = get(this, 'optionGroupRowHeight');
+    var columnCount = get(this, 'columnCount');
+    var bottomPadding = get(this, 'bottomPadding');
+
+    return (ceil((contentLength-optionGroupLength) / columnCount) * rowHeight) + (ceil(optionGroupLength / columnCount) * optionGroupRowHeight) + bottomPadding;
   }),
+
+  /**
+    @private
+
+    Filter the content to only contain the options group headings
+
+    @property {Ember.ComputedProperty} optionGroupArray
+  */
+  optionGroupArray: Ember.computed.filterBy('content', 'isGroupOption', true),
 
   _doRowHeightDidChange: function() {
     this._cachedHeights = [0];
@@ -305,21 +322,21 @@ export default Ember.Mixin.create({
     Ember.run.once(this, this._doRowHeightDidChange);
   }),
 
-  _totalHeightWithHeightForIndex: function() {
-    var length = this.get('content.length');
-    return this._cachedHeightLookup(length);
-  },
+  // _totalHeightWithHeightForIndex: function() {
+  //   var length = this.get('content.length');
+  //   return this._cachedHeightLookup(length);
+  // },
 
-  _totalHeightWithStaticRowHeight: function() {
-    var contentLength, rowHeight, columnCount, bottomPadding;
+  // _totalHeightWithStaticRowHeight: function() {
+  //   var contentLength, rowHeight, columnCount, bottomPadding;
 
-    contentLength = get(this, 'content.length');
-    rowHeight = get(this, 'rowHeight');
-    columnCount = get(this, 'columnCount');
-    bottomPadding = get(this, 'bottomPadding');
+  //   contentLength = get(this, 'content.length');
+  //   rowHeight = get(this, 'rowHeight');
+  //   columnCount = get(this, 'columnCount');
+  //   bottomPadding = get(this, 'bottomPadding');
 
-    return ((ceil(contentLength / columnCount)) * rowHeight) + bottomPadding;
-  },
+  //   return ((ceil(contentLength / columnCount)) * rowHeight) + bottomPadding;
+  // },
 
   /**
     @private
@@ -353,7 +370,7 @@ export default Ember.Mixin.create({
     content         = get(this, 'content');
     enableProfiling = get(this, 'enableProfiling');
     position        = this.positionForIndex(contentIndex);
-    childView.updatePosition(position);
+    //childView.updatePosition(position);
 
     set(childView, 'contentIndex', contentIndex);
 
@@ -449,18 +466,19 @@ export default Ember.Mixin.create({
     @property {Ember.ComputedProperty} columnCount
   */
   columnCount: Ember.computed('width', 'elementWidth', function() {
-    var elementWidth, width, count;
+    // var elementWidth, width, count;
 
-    elementWidth = get(this, 'elementWidth');
-    width = get(this, 'width');
+    // elementWidth = get(this, 'elementWidth');
+    // width = get(this, 'width');
 
-    if (elementWidth && width > elementWidth) {
-      count = floor(width / elementWidth);
-    } else {
-      count = 1;
-    }
+    // if (elementWidth && width > elementWidth) {
+    //   count = floor(width / elementWidth);
+    // } else {
+    //   count = 1;
+    // }
 
-    return count;
+    // return count;
+    return 1;
   }),
 
   /**
@@ -539,45 +557,45 @@ export default Ember.Mixin.create({
     @method _numChildViewsForViewport
   */
   _numChildViewsForViewport: function() {
-
-    if (this.heightForIndex) {
-      return this._numChildViewsForViewportWithMultiHeight();
-    } else {
-      return this._numChildViewsForViewportWithoutMultiHeight();
-    }
+    // if (this.heightForIndex) {
+    //   return this._numChildViewsForViewportWithMultiHeight();
+    // } else {
+    //   return this._numChildViewsForViewportWithoutMultiHeight();
+    // }
+    return 999;
   },
 
-  _numChildViewsForViewportWithoutMultiHeight:  function() {
-    var height, rowHeight, paddingCount, columnCount;
+  // _numChildViewsForViewportWithoutMultiHeight:  function() {
+  //   var height, rowHeight, paddingCount, columnCount;
 
-    height = get(this, 'height');
-    rowHeight = get(this, 'rowHeight');
-    paddingCount = get(this, 'paddingCount');
-    columnCount = get(this, 'columnCount');
+  //   height = get(this, 'height');
+  //   rowHeight = get(this, 'rowHeight');
+  //   paddingCount = get(this, 'paddingCount');
+  //   columnCount = get(this, 'columnCount');
 
-    return (ceil(height / rowHeight) * columnCount) + (paddingCount * columnCount);
-  },
+  //   return (ceil(height / rowHeight) * columnCount) + (paddingCount * columnCount);
+  // },
 
-  _numChildViewsForViewportWithMultiHeight:  function() {
-    var rowHeight, paddingCount, columnCount;
-    var scrollTop = this.scrollTop;
-    var viewportHeight = this.get('height');
-    var length = this.get('content.length');
-    var heightfromTop = 0;
-    var padding = get(this, 'paddingCount');
+  // _numChildViewsForViewportWithMultiHeight:  function() {
+  //   var rowHeight, paddingCount, columnCount;
+  //   var scrollTop = this.scrollTop;
+  //   var viewportHeight = this.get('height');
+  //   var length = this.get('content.length');
+  //   var heightfromTop = 0;
+  //   var padding = get(this, 'paddingCount');
 
-    var startingIndex = this._calculatedStartingIndex();
-    var currentHeight = 0;
+  //   var startingIndex = this._calculatedStartingIndex();
+  //   var currentHeight = 0;
 
-    var offsetHeight = this._cachedHeightLookup(startingIndex);
-    for (var i = 0; i < length; i++) {
-      if (this._cachedHeightLookup(startingIndex + i + 1) - offsetHeight > viewportHeight) {
-        break;
-      }
-    }
+  //   var offsetHeight = this._cachedHeightLookup(startingIndex);
+  //   for (var i = 0; i < length; i++) {
+  //     if (this._cachedHeightLookup(startingIndex + i + 1) - offsetHeight > viewportHeight) {
+  //       break;
+  //     }
+  //   }
 
-    return i + padding + 1;
-  },
+  //   return i + padding + 1;
+  // },
 
 
   /**
@@ -591,30 +609,31 @@ export default Ember.Mixin.create({
     @method _startingIndex
   */
   _startingIndex: function(_contentLength) {
-    var scrollTop, rowHeight, columnCount, calculatedStartingIndex,
-        contentLength;
+    // var scrollTop, rowHeight, columnCount, calculatedStartingIndex,
+    //     contentLength;
 
-    if (_contentLength === undefined) {
-      contentLength = get(this, 'content.length');
-    } else {
-      contentLength = _contentLength;
-    }
+    // if (_contentLength === undefined) {
+    //   contentLength = get(this, 'content.length');
+    // } else {
+    //   contentLength = _contentLength;
+    // }
 
-    scrollTop = this.scrollTop;
-    rowHeight = get(this, 'rowHeight');
-    columnCount = get(this, 'columnCount');
+    // scrollTop = this.scrollTop;
+    // rowHeight = get(this, 'rowHeight');
+    // columnCount = get(this, 'columnCount');
 
-    if (this.heightForIndex) {
-      calculatedStartingIndex = this._calculatedStartingIndex();
-    } else {
-      calculatedStartingIndex = floor(scrollTop / rowHeight) * columnCount;
-    }
+    // if (this.heightForIndex) {
+    //   calculatedStartingIndex = this._calculatedStartingIndex();
+    // } else {
+    //   calculatedStartingIndex = floor(scrollTop / rowHeight) * columnCount;
+    // }
 
-    var viewsNeededForViewport = this._numChildViewsForViewport();
-    var paddingCount = (1 * columnCount);
-    var largestStartingIndex = max(contentLength - viewsNeededForViewport, 0);
+    // var viewsNeededForViewport = this._numChildViewsForViewport();
+    // var paddingCount = (1 * columnCount);
+    // var largestStartingIndex = max(contentLength - viewsNeededForViewport, 0);
 
-    return min(calculatedStartingIndex, largestStartingIndex);
+    // return min(calculatedStartingIndex, largestStartingIndex);
+    return 0;
   },
 
   _calculatedStartingIndex: function() {
