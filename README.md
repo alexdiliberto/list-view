@@ -1,5 +1,7 @@
 # ListView [![Build Status](https://secure.travis-ci.org/emberjs/list-view.png?branch=master)](http://travis-ci.org/emberjs/list-view)
 
+*This fork removes lazy loading and DOM recycling for row items.*
+
 An efficient incremental rendering list view for large lists.
 
 *ListView* works on major modern browsers and also on major mobile devices (iOS, Android). However, there are known issues with using *ListView* on mobile web (if you have a long list and you're touch-scrolling it very fast, you'll see that items in your list start to disappear and after some lag appear again). That happens because some mobile browsers do not emit scroll events during the momentum scroll phase that *ListView* needs to capture. Also, if the browser is under heavy load, it can just stop emitting some events.
